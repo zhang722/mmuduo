@@ -48,7 +48,7 @@ void EpollPoller::removeChannel(Channel *channel) {
 
 
 Timestamp EpollPoller::poll(int timeout, ChannelList *activeChannels) {
-    int num = ::epoll_wait(epollfd_, &*events_.begin(), static_cast<int>(events_.size()), timeout);
+    int num = ::epoll_wait(epollfd_, &*events_.begin(), static_cast<int>(events_.size()), -1);
     LOG_INFO("After epoll_wait.");
 
     if (num > 0) {

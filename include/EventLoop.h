@@ -41,12 +41,13 @@ public:
 
     // 其他线程调用接口
     void runInLoop(Functor cb);
+    // 其他线程调用接口
+    void queueInLoop(Functor cb);
 
 
 private:
     static constexpr int TIMEOUT = 10000;
     void handleRead();
-    void queueInLoop(Functor cb);
     void doPendingFunctors();
 
     std::atomic<bool> quit_;

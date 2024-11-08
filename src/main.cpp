@@ -6,6 +6,8 @@
 #include "Logger.h"
 #include "Channel.h"
 #include "EventLoop.h"
+#include "Acceptor.h"
+#include "InetAddress.h"
 
 std::mutex m;
 std::condition_variable cv;
@@ -13,6 +15,11 @@ EventLoop *loop = nullptr;
 
 void otherThreadFunc() {
     EventLoop l;
+    InetAddress listenAddr;
+    Acceptor acceptor(&l, listenAddr, true);
+    acceptor.setNewConnectionCallback([]() {
+        LOG_INFO("new connection.");
+    });
     {
         std::unique_lock<std::mutex> lock(m); 
         loop = &l;

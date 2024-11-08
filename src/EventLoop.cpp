@@ -105,7 +105,6 @@ void EventLoop::handleRead() {
 void EventLoop::queueInLoop(Functor cb) {
     {
         std::lock_guard<std::mutex> g(mutex_);
-
         functors_.push_back(std::move(cb));
     }
 }

@@ -3,7 +3,7 @@
 #include "Logger.h"
 
 
-void Channel::tie(std::shared_ptr<TcpConnection>& tcpPtr) {
+void Channel::tie(const std::shared_ptr<TcpConnection>& tcpPtr) {
     tie_ = tcpPtr;
     tied_ = true;
 }
@@ -31,6 +31,8 @@ void Channel::handleEvent(Timestamp receiveTime) {
 
 
 void Channel::handleEventWithGuard(Timestamp receiveTime) {
+    LOG_INFO("revent_ is: %d", revent_);
+
     if ((revent_ & POLLHUP) && !(revent_ & POLLIN)) {
         if (closeCallBack_) 
             closeCallBack_();
@@ -42,7 +44,6 @@ void Channel::handleEventWithGuard(Timestamp receiveTime) {
     }
 
     if (revent_ & (POLLIN | POLLPRI | POLLRDHUP)) {
-        LOG_INFO("Read in handleEvent.");
         if (readCallBack_)
             readCallBack_(receiveTime);
     }

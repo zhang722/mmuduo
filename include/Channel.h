@@ -25,7 +25,7 @@ public:
         loop_(loop), fd_(fd), addedToLoop_(false), tied_(false), event_(0), revent_(0) {}
     ~Channel() {};
 
-    void tie(std::shared_ptr<TcpConnection>& tcpPtr);
+    void tie(const std::shared_ptr<TcpConnection>& tcpPtr);
     void handleEvent(Timestamp receiveTime);
     void setReadCallBack(ReadCallBack cb) { readCallBack_ = std::move(cb); }
     void setWriteCallBack(CallBack cb) { writeCallBack_ = std::move(cb); }
