@@ -30,8 +30,8 @@ void Acceptor::handleRead() {
     int connfd = socket_->accept(&peerAddr, &error);
     if (connfd >= 0) {
         LOG_INFO("A new listened.");
-        if (true) {
-            newConnection(connfd, peerAddr);
+        if (newConnectionCallback_) {
+            newConnectionCallback_(connfd, peerAddr);
         }
         else 
             ::close(connfd);
@@ -45,19 +45,3 @@ void Acceptor::handleRead() {
     }
 }
 
-void Acceptor::newConnection(int fd, const InetAddress& peerAddr) {
-    TcpConnection::TcpConnectionPtr conn(new TcpConnection("conn1",
-                                                            loop_,
-                                                            fd,
-                                                            listenAddr_,
-                                                            peerAddr)); 
-    
-    conn->setMessageCallback(
-        [](const TcpConnection::TcpConnectionPtr& coon, Buffer *buf, Timestamp time) {
-            coon->send(buf);
-        }
-    );
-
-    connections_.insert(conn);
-    loop_->runInLoop(std::bind(&TcpConnection::connectEstablished, conn));
-}

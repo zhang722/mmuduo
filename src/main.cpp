@@ -2,60 +2,34 @@
 #include <mutex>
 #include <condition_variable>
 #include <chrono>
+#include <iostream>
 
 #include "Logger.h"
 #include "Channel.h"
 #include "EventLoop.h"
 #include "Acceptor.h"
 #include "InetAddress.h"
+#include "EventLoopThreadPoll.h"
+#include "TcpServer.h"
 
-std::mutex m;
-std::condition_variable cv;
-EventLoop *loop = nullptr;
 
-void otherThreadFunc() {
-    EventLoop l;
-    InetAddress listenAddr;
-    Acceptor acceptor(&l, listenAddr, true);
-    acceptor.setNewConnectionCallback([]() {
-        LOG_INFO("new connection.");
-    });
-    {
-        std::unique_lock<std::mutex> lock(m); 
-        loop = &l;
-        cv.notify_all();
-    }
-
-    l.loop();
-}
 
 int main() {
-    LOG_DEBUG("%s", "debug");
-    LOG_INFO("%s", "info");
-    LOG_ERROR("%s", "error");
-    LOG_FATAL("%s", "fatal");
-
-
-
     LOG_INFO("main threadid: %d", std::this_thread::get_id());
-
-    std::thread t(otherThreadFunc);
-
-    {
-        std::unique_lock<std::mutex> lock(m);
-        cv.wait(lock, [&]{ return loop != nullptr; });
-    }
-
-    loop->runInLoop([]() {
-        LOG_INFO("Functor passed from main.");
+    EventLoop loop;
+    InetAddress listenAddr;
+    TcpServer server(&loop, listenAddr, "server", false, 3);
+    server.setConnectCallback([](const TcpConnectionPtr& conn) {
+        std::cout << "conn :" << conn->name() << "created." << std::endl;
     });
-    loop->wakeup();
+    server.setMessageCallback([](const TcpConnectionPtr& conn, Buffer *buf, Timestamp time) {
+        conn->send(buf);
+    });
+    server.setWriteCompleteCallback([](const TcpConnectionPtr& conn) {
+        std::cout << "conn: " << conn->name() << std::endl;
+    });
+    server.start();
+    loop.loop();
 
-    // std::this_thread::sleep_for(std::chrono::microseconds(1000));
-    // loop->quit();
-    
-
-    if (t.joinable())
-        t.join();
     return 0;
 }

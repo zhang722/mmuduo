@@ -84,10 +84,10 @@ bool EventLoop::hasChannel(Channel *channel) {
 
 void EventLoop::runInLoop(Functor cb) {
     if (isInLoopThread()) {
-        LOG_INFO("Invoke runInLoop, isInloopThread: ", std::this_thread::get_id());
+        LOG_INFO("Invoke runInLoop, isInloopThread: %d", std::this_thread::get_id());
         cb();
     } else {
-        LOG_INFO("Invoke runInLoop, not In loopThread: ", std::this_thread::get_id());
+        LOG_INFO("Invoke runInLoop, not In loopThread: %d", std::this_thread::get_id());
         queueInLoop(std::move(cb));
     } 
 }
@@ -103,9 +103,13 @@ void EventLoop::handleRead() {
 }
 
 void EventLoop::queueInLoop(Functor cb) {
+    LOG_INFO("queueInLoop in thread: %d", std::this_thread::get_id());
     {
         std::lock_guard<std::mutex> g(mutex_);
         functors_.push_back(std::move(cb));
+    }
+    if (!isInLoopThread()) {
+        wakeup();
     }
 }
 

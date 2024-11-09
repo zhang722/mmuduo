@@ -7,21 +7,21 @@
 #include "nocopyable.h"
 #include "InetAddress.h"
 #include "Socket.h"
+#include "Channel.h"
 #include "TcpConnection.h"
 
-// class Socket;
-class Channel;
 class EventLoop;
 
 class Acceptor : nocopyable {
 public:
-    using NewConnectionCallback = std::function<void()>;
+    using NewConnectionCallback = std::function<void(int, const InetAddress&)>;
     Acceptor(EventLoop *loop, const InetAddress& listenAddr, bool reusePort);
 
     void setNewConnectionCallback(NewConnectionCallback cb) {
         newConnectionCallback_ = std::move(cb);
     }
-    void newConnection(int fd, const InetAddress& peerAddr);
+
+    InetAddress getListenAddr() { return listenAddr_; }
 
 private:
     void handleRead();
@@ -35,6 +35,4 @@ private:
     int idleFd_;
 
     NewConnectionCallback newConnectionCallback_;
-
-    std::unordered_set<TcpConnection::TcpConnectionPtr> connections_;    
 };

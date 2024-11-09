@@ -24,10 +24,13 @@ public:
     TcpConnection(const std::string& name, EventLoop *loop, int fd, const InetAddress&, const InetAddress&);
     ~TcpConnection() = default;
 
+    const std::string& name() { return name_; }
+    EventLoop* loop() { return loop_; }
+
     void setConnectionCallback(const ConnectCallback& cb) { connectCallback_ = cb; }
     void setMessageCallback(const MessageCallback& cb) { messageCallback_ = cb; }
+    void setWriteCompleteCallback(const WriteCompleteCallback& cb) { writeCompleteCallback_ = cb; }
     void setCloseCallback(const CloseCallback& cb) { closeCallback_ = cb; }
-
 
     void send(Buffer *buf);
     void shutdown();
@@ -71,3 +74,5 @@ private:
     WriteCompleteCallback writeCompleteCallback_;
     MessageCallback messageCallback_;
 };
+
+using TcpConnectionPtr = TcpConnection::TcpConnectionPtr;
