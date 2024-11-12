@@ -12,6 +12,8 @@
 #define LOG_ERROR(...) Logger::instance().log(Logger::ERROR,  __VA_ARGS__)
 #define LOG_FATAL(...) Logger::instance().log(Logger::FATAL,  __VA_ARGS__)
 
+#define SET_LOG_LEVEL(...) Logger::instance().setLogLevel(__VA_ARGS__)
+
 class Logger : nocopyable  {
 public:
     enum LEVEL {

@@ -14,6 +14,7 @@
 #include "ThreadPool.h"
 
 int main() {
+    SET_LOG_LEVEL(Logger::LEVEL::FATAL);
     LOG_INFO("main threadid: %d", std::this_thread::get_id());
     EventLoop loop;
     InetAddress listenAddr;

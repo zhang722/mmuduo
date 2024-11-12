@@ -49,18 +49,12 @@ void EpollPoller::removeChannel(Channel *channel) {
 
 Timestamp EpollPoller::poll(int timeout, ChannelList *activeChannels) {
     int num = ::epoll_wait(epollfd_, &*events_.begin(), static_cast<int>(events_.size()), -1);
-    LOG_INFO("After epoll_wait.");
 
     if (num > 0) {
         LOG_INFO("num: %d, events size: %d", num, events_.size());
         for (int i = 0; i < num; i++) {
-            LOG_INFO("channels size: %d", channels_.size());
-            LOG_INFO("first fd: %d", channels_.begin()->first);
-            LOG_INFO("fd: %d", events_[i].data.fd);
-            LOG_INFO("event: %d", events_[i].events);
             Channel *c = channels_[events_[i].data.fd];
             
-            LOG_INFO("here");
             // if (!hasChannel(c)) {
             //     LOG_INFO("Doesn't have channel.");
             //     continue;
