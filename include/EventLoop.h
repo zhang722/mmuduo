@@ -8,6 +8,7 @@
 #include <mutex>
 
 #include "nocopyable.h"
+#include "TimeQueue.h"
 
 class Poller;
 class Channel;
@@ -44,6 +45,20 @@ public:
     // 其他线程调用接口
     void queueInLoop(Functor cb);
 
+    // 定时器
+    void runAt(Functor&& cb, Timestamp expiration) {
+        timeQueue_->addTimer(std::move(cb), 0.0, expiration);
+    }
+
+    void runAfter(Functor&& cb, double waitTimeS) {
+        Timestamp time(Timestamp::now().time() + std::chrono::milliseconds(static_cast<int>(waitTimeS * 1000)));
+        timeQueue_->addTimer(std::move(cb), 0.0, time);
+    }
+
+    void runEvery(Functor&& cb, double intervalS) {
+        Timestamp time(Timestamp::now().time() + std::chrono::milliseconds(static_cast<int>(intervalS * 1000)));
+        timeQueue_->addTimer(std::move(cb), intervalS, time);     
+    }
 
 private:
     static constexpr int TIMEOUT = 10000;
@@ -56,6 +71,7 @@ private:
     std::thread::id threadId_;
 
     std::unique_ptr<Poller> poller_;
+    std::unique_ptr<TimeQueue> timeQueue_;
 
     int wakeupFd_;
     std::unique_ptr<Channel> wakeupChannel_;

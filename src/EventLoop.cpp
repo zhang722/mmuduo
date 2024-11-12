@@ -13,6 +13,7 @@ EventLoop::EventLoop()
     iteration_(0),
     threadId_(std::this_thread::get_id()),
     poller_(defaultPoller(this)),
+    timeQueue_(new TimeQueue(this)),
     wakeupFd_(eventfd(0, EFD_NONBLOCK | EFD_CLOEXEC)),
     wakeupChannel_(new Channel(this, wakeupFd_)),
     currentChannel_(nullptr)

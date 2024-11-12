@@ -11,8 +11,7 @@
 #include "InetAddress.h"
 #include "EventLoopThreadPoll.h"
 #include "TcpServer.h"
-
-
+#include "ThreadPool.h"
 
 int main() {
     LOG_INFO("main threadid: %d", std::this_thread::get_id());
@@ -28,6 +27,19 @@ int main() {
     server.setWriteCompleteCallback([](const TcpConnectionPtr& conn) {
         std::cout << "conn: " << conn->name() << std::endl;
     });
+
+    loop.runEvery([]() {
+        LOG_INFO("run every");
+    }, 2.0);
+
+    ThreadPool threadPool(3);    
+    auto result = threadPool.enqueue([]() {
+        LOG_INFO("task1");
+        return 1;
+    });
+
+    LOG_INFO("%d", result.get());
+
     server.start();
     loop.loop();
 
